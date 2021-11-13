@@ -24,7 +24,8 @@ client.connect((err) => {
   const carCollection = client.db("product").collection("car");
   const reviewCollection = client.db("customers").collection("review");
   const shipmentCollection = client.db("shipment").collection("shipment_details");
-
+   const usersCollection = client.db("auto_users").collection("users");
+  
   // add car
   app.post("/addCar", async (req, res) => {
     const result = await carCollection.insertOne(req.body);
@@ -117,8 +118,49 @@ client.connect((err) => {
     const result = await carCollection.deleteOne(query);
     res.json(result);
   });
+ // post user
+  app.post("/addUserInfo", async (req, res) => {
+    console.log("req.body");
+    const result = await usersCollection.insertOne(req.body);
+    res.send(result);
+  });
 
-  // client.close();
+  // make admin
+  app.put("/makeAdmin", async (req, res) => {
+    const filter = { email: req.body.email };
+    const result = await usersCollection.find(filter).toArray();
+    if (result) {
+      const documents = await usersCollection.updateOne(filter, {
+        $set: { role: "admin" },
+      });
+    }
+  });
+
+  // check admin or not
+  app.get("/checkAdmin/:email", async (req, res) => {
+    const result = await usersCollection
+      .find({ email: req.params.email })
+      .toArray();
+    console.log(result);
+    res.send(result);
+  });
+
+  // status update
+  app.put("/updateStatus/:id", (req, res) => {
+    const id = req.params.id;
+    const updatedStatus = req.body.status;
+    const filter = { _id: ObjectId(id) };
+    console.log(updatedStatus);
+    shipmentCollection
+      .updateOne(filter, {
+        $set: { status: updatedStatus },
+      })
+      .then((result) => {
+        res.send(result);
+      });
+  });
+
+// client.close();
 });
 
 app.listen(port, () => {
