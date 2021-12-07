@@ -21,27 +21,27 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 client.connect((err) => {
-  const carCollection = client.db("product").collection("car");
+  const carsCollection = client.db("product").collection("car");
   const reviewCollection = client.db("customers").collection("review");
   const shipmentCollection = client.db("shipment").collection("shipment_details");
    const usersCollection = client.db("auto_users").collection("users");
   
   // add car
   app.post("/addCar", async (req, res) => {
-    const result = await carCollection.insertOne(req.body);
+    const result = await carsCollection.insertOne(req.body);
     res.send(result);
   });
 
   // get car
   app.get("/car", async (req, res) => {
-    const result = await carCollection.find({}).toArray();
+    const result = await carsCollection.find({}).toArray();
     res.send(result);
   });
 
   // get car
   app.get("/car/:id", async (req, res) => {
     console.log(req.params.id);
-    const result = await carCollection
+    const result = await carsCollection
       .find({
         _id: ObjectId(req.params.id),
       })
@@ -115,7 +115,7 @@ client.connect((err) => {
   app.delete("/car/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
-    const result = await carCollection.deleteOne(query);
+    const result = await carsCollection.deleteOne(query);
     res.json(result);
   });
  // post user
